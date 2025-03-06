@@ -17,7 +17,7 @@ def take_screenshot(url):
     options.add_argument("--no-sandbox")
     options.add_argument("--diable-dev-shm-usage")
     browser = webdriver.Chrome(options=options)
-    # print(browser)
+    
     browser.get(url)
 
     total_height=browser.execute_script("return document.body.parentNode.scrollHeight")
@@ -37,8 +37,8 @@ def take_screenshot(url):
         resource_type='image'
     )
 
-    print(upload_response)
-    return upload_response
+    
+    return upload_response['url']
 
 def index(request):
     take_screenshot("https://felix221123.github.io/my-portfolio-website/")
