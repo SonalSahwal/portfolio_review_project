@@ -15,21 +15,20 @@ cloudinary.config(
     secure=True
 )
 # Create your views here.
-
 def take_screenshot(url):
-    options=webdriver.ChromeOptions()
+    options = webdriver.ChromeOptions()
     options.add_argument("--headless")
     options.add_argument("--no-sandbox")
     options.add_argument("--diable-dev-shm-usage")
     browser = webdriver.Chrome(options=options)
-    
+
     browser.get(url)
 
-    total_height=browser.execute_script("return document.body.parentNode.scrollHeight")
+    total_height = browser.execute_script("return document.body.parentNode.scrollHeight")
 
     browser.set_window_size(1200, total_height)
 
-    screenshot= browser.get_screenshot_as_png()
+    screenshot = browser.get_screenshot_as_png()
 
     browser.quit()
     
@@ -41,8 +40,8 @@ def take_screenshot(url):
         public_id= f"{santized_url}.png",
         resource_type='image'
     )
-
-    #print(upload_response['url'])
+    
+    # print(upload_response)
     return upload_response['url']
 
 def get_review(screenshot_url):
@@ -55,19 +54,16 @@ def get_review(screenshot_url):
                 "query": screenshot_url,
                 "intent": { "name": "review_intent" },
                 "entities": []
-                        }
-                },
+            }
+        },
         "config": {
             "tts": False,
             "stripSSML": True,
-            "stopAll": False,
+            "stopAll": True,
             "excludeTypes": ["block", "debug", "flow"]
-                },
+        },
         "state": { "variables": { "x_var": 1 } }
-            }
-
-
-    #API key      
+    }
     headers = {
     "accept": "application/json",
     "content-type": "application/json",
@@ -76,8 +72,8 @@ def get_review(screenshot_url):
 
     response = requests.post(url, json=payload, headers=headers)
     data = response.json()
-    print("\n\n\nDATA FROM CHATGG\n\n")
-    print(data)
+    # print("\n\n\nDATA FROM CHATGG\n\n")
+    # print(data)
     review_text= ""
 
     for item in data:
@@ -90,32 +86,35 @@ def get_review(screenshot_url):
 
 @require_http_methods(["POST"])
 def submit_url(request):
-    data= json.loads(request.body)
-    domain= data.get('domain')
+    data = json.loads(request.body)
+    domain = data.get('domain')
 
-    website_screenshot=take_screenshot(domain)
-    website_review= get_review(website_screenshot)
+    website_screenshot = take_screenshot(domain)
+    website_review = get_review(website_screenshot)
 
-    new_review_object= Review.objects.create(
-        site_url= domain,
-        site_image_url= website_screenshot,
-        feedback= website_review,
+    new_review_object = Review.objects.create(
+        site_url = domain,
+        site_image_url = website_screenshot,
+        feedback = website_review,
     )
 
-    review_id= new_review_object.id
+    review_id = new_review_object.id
 
-    response_data={
-        'website_screenshot':website_screenshot,
+    response_data = {
+        'website_screenshot': website_screenshot,
         'website_review': website_review,
+        'review_id': review_id,
     }
 
     return JsonResponse(response_data)
 
-@require_http_methods(["POST"]) 
+@require_http_methods(["POST"])
 def feedback(request):
     data = json.loads(request.body)
     review_id = data.get('id')
     type = data.get('type')
+    print("\n\n\nFEEDBACK LOGGED HERE\n")
+    print(data)
 
     try:
         review = Review.objects.get(id=review_id)
@@ -125,10 +124,6 @@ def feedback(request):
         return JsonResponse({"status": "success", "message": "Feedback submitted"})
     except Review.DoesNotExist:
         return JsonResponse({"status": "error", "message": "Review not found"})
-
-
-def index(request):
     
-    #take_screenshot("https://felix221123.github.io/my-portfolio-website/")
-    #get_review("https://res.cloudinary.com/dsw0zwafj/image/upload/v1741362636/screenshots/___felix221123.github.io_my-portfolio-website_.png.png")
+def index(request):
     return render(request, 'index.html')
