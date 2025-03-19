@@ -40,7 +40,7 @@ The core functionality of this project revolves around AI-powered analysis of us
 
     ```bash
     git clone https://github.com/SonalSahwal/portfolio_review_project.git
-    cd portfolio-review-project
+    cd portfolio_review_project
     ```
 
 2.  **Create a virtual environment (recommended):**
