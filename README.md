@@ -39,7 +39,7 @@ The core functionality of this project revolves around AI-powered analysis of us
 1.  **Clone the repository:**
 
     ```bash
-    git clone <repository_url>
+    git clone https://github.com/SonalSahwal/portfolio_review_project.git
     cd portfolio-review-project
     ```
 
